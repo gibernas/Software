@@ -181,6 +181,7 @@ class VehicleAvoidanceControlNode(object):
 # 				self.v_gain = v_gain_max
 
 	def cbCarCmd(self, car_cmd_msg):
+		rospy.loginfo("[%s] Spinning" %self.node_name)
 		car_cmd_msg_current = Twist2DStamped()
 		car_cmd_msg_current = car_cmd_msg
 		car_cmd_msg_current.header.stamp = rospy.Time.now()

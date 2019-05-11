@@ -1,0 +1,15 @@
+<launch>
+    <arg name="veh" doc="Name of vehicle. ex: megaman"/>
+    <arg name="config" default="baseline" doc="Specify a config."/>
+    <arg name="pkg_name" value="follow_leader"/>
+    <arg name="node_name" default="follow_leader_node"/>
+    <arg name="verbose" default="false" />
+
+    <group ns="$(arg veh)">
+        <!-- run local -->
+        <node name="follow_leader_node" pkg="$(arg pkg_name)" type="$(arg node_name).py" output="screen" clear_params="true" required="true">
+        </node>
+
+    </group>
+
+</launch>

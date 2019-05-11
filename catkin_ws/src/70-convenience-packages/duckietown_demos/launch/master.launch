@@ -18,6 +18,7 @@
 	<arg name="intersectionType" default= "stopSign"/>
 	<arg name="use_priority_protocol" default= "true"/>
 	<arg name="target_node" default="240"/>
+	<arg name="follow_leader" default= "false"/>
 	<!-- end basic args -->
 
 	<!-- the things that are "on" by default:
@@ -423,9 +424,11 @@
 		<remap from="vehicle_avoidance_control_node/detection" to="vehicle_detection_node/detection"/>
 		<remap from="vehicle_avoidance_control_node/vehicle_pose" to="vehicle_filter_node/pose"/>
 		<remap from="vehicle_avoidance_control_node/car_cmd_in" to="lane_controller_node/car_cmd"/>
+
+                <remap from="vehicle_avoidance_control_node/car_cmd_in" to="follow_leader_node/car_cmd"/>
+
+
 		<include file="$(find vehicle_detection)/launch/vehicle_avoidance_control_node.launch" >
-
-
 			<arg name="veh" value="$(arg veh)"/>
 		</include>
 	</group>
@@ -597,19 +600,19 @@
   <remap from="unicorn_intersection_node/lane_pose_in" to="lane_filter_node/lane_pose"/>
   <remap from="unicorn_intersection_node/lane_pose_out" to="lane_controller_node/intersection_navigation_pose"/>
   <remap from="unicorn_intersection_node/intersection_done_detailed" to="intersection_navigation_node/intersection_done_detailed"/>
-  
+
   <remap if="$(arg maintenance_control)" from="unicorn_intersection_node/turn_id_and_type" to="maintenance_control_node/turn_id_and_type_out"/>
   <remap unless="$(arg maintenance_control)" from="unicorn_intersection_node/turn_id_and_type" to="random_april_tag_turns_node/turn_id_and_type"/>
-  
-  
-  
-  
+
+
+
+
   <include file="$(find unicorn_intersection)/launch/unicorn_intersection_node.launch">
     <arg name="veh" value="$(arg veh)"/>
     <arg name="config" value="$(arg config)"/>
     <arg name="param_file_name" value="$(arg param_file_name)"/>
   </include>
-  
+
 </group>
 <!-- End Unicorn intersection -->
 
@@ -894,5 +897,18 @@
 	</include>
 </group>
 <!-- End localization -->
+
+<!-- Start follow leader -->
+<group if="$(arg follow_leader)">
+	<!-- follow_leader -->
+	<remap from="follow_leader_node/vehicle_detected" to="vehicle_avoidance_control_node/vehicle_detected"/>
+	<remap from="follow_leader_node/veh_pos" to="vehicle_filter_node/pose"/>
+	<include file="$(find follow_leader)/launch/follow_leader_node.launch">
+		<arg name="veh" value="$(arg veh)"/>
+	</include>
+
+</group>
+<!-- End localization -->
+
 
 </launch>
