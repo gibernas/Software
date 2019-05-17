@@ -13,6 +13,8 @@ class VehicleAvoidanceControlNode(object):
 
 	def __init__(self):
 		self.node_name = rospy.get_name()
+
+		self.veh_name = os.environ['VEHICLE_NAME']
 		rospack = rospkg.RosPack()
 		self.car_cmd_pub = rospy.Publisher("~car_cmd",
 				Twist2DStamped, queue_size = 1)
@@ -36,20 +38,6 @@ class VehicleAvoidanceControlNode(object):
 		self.loadConfig(self.cali_file)
 		self.controllerInitialization()
 		self.detection_prev=None
-
-# 		self.v_gain = 1
-# 		self.vehicle_pose_msg_temp = VehiclePose()
-# 		#self.vehicle_pose_msg_temp = Pose2DStamped()
-# 		self.vehicle_pose_msg_temp.header.stamp = rospy.Time.now()
-# 		#self.time_temp = rospy.Time.now()
-# 		self.v_rel = 0
-# 		self.v = 0
-# 		self.detection = False
-# 		self.v_error_temp = 0
-# 		self.I = 0
-# 		self.v_follower = 0
-# 		self.rho_temp = 0
-# 		self.omega = 0
 
 	def setupParam(self, param_name, default_value):
 		value = rospy.get_param(param_name, default_value)
@@ -109,21 +97,11 @@ class VehicleAvoidanceControlNode(object):
 
 
 	def cbPose(self, vehicle_pose_msg):
-# 		desired_distance = 0.3
-		#distance_error_tolerance = 0.04
-# 		d_min = 0.2
-# 		Kp = 0.7
-# 		Kp_delta_v = 0.8
-# 		Ki = 0.0
-# 		Kd = 0.00
 
 		time = rospy.Time.now()
 
-		#Ts = (vehicle_pose_msg.header.stamp - self.vehicle_pose_msg_temp.header.stamp).to_sec()
 		Ts = (time - self.time_temp).to_sec()
-# 		print("-----")
-#  		print(Ts)
-# 		print(Ts2)
+
 		self.vehicle_pose_msg_temp.header.stamp = vehicle_pose_msg.header.stamp
 		#print(Ts)
 		if Ts > 4:
@@ -140,19 +118,6 @@ class VehicleAvoidanceControlNode(object):
 			v_leader = self.v_follower + self.v_rel
 			delta_v = (vehicle_pose_msg.rho.data - self.desired_distance)/Ts * self.Kp_delta_v
 			v_des = v_leader + delta_v
-
-# 			print("v leader")
-# 			print(v_leader)
-# 			print("v follower")
-# 			print(self.v_follower)
-# 			print("delta v")
-# 			print(delta_v)
-# 			print("v_rel")
-# 			print(self.v_rel)
-# 			print("rho")
-# 			print(vehicle_pose_msg.rho)
-# 			print("psi")
-# 			print(vehicle_pose_msg.psi)
 
 			v_error = v_des - self.v_follower
 
@@ -181,24 +146,29 @@ class VehicleAvoidanceControlNode(object):
 # 				self.v_gain = v_gain_max
 
 	def cbCarCmd(self, car_cmd_msg):
-		rospy.loginfo("[%s] Spinning" %self.node_name)
+		
 		car_cmd_msg_current = Twist2DStamped()
 		car_cmd_msg_current = car_cmd_msg
 		car_cmd_msg_current.header.stamp = rospy.Time.now()
-		if self.detection:
-			car_cmd_msg_current.v = self.v
-			if self.v == 0:
-				car_cmd_msg_current.omega = 0
-			#print(self.v)
 
-		if self.detection_prev and not self.detection:
-			car_cmd_msg_current.v=0
+		# TODO: fix this hack..
+		if self.sub_car_cmd.name == "/"+str(self.veh_name)+"/follow_leader_node/car_cmd":
+			self.car_cmd_pub.publish(car_cmd_msg_current)
+		else:
+			if self.detection:
+				car_cmd_msg_current.v = self.v
+				if self.v == 0:
+					car_cmd_msg_current.omega = 0
+				#print(self.v)
 
-		if car_cmd_msg_current.v>=0.25:
-			car_cmd_msg_current.v=0.25
+			if self.detection_prev and not self.detection:
+				car_cmd_msg_current.v=0
 
-		self.car_cmd_pub.publish(car_cmd_msg_current)
-		#print(self.v_gain)
+			if car_cmd_msg_current.v>=0.25:
+				car_cmd_msg_current.v=0.25
+
+			self.car_cmd_pub.publish(car_cmd_msg_current)
+			#print(self.v_gain)
 
 
 # 	def publishCmd(self,stamp):

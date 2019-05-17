@@ -22,7 +22,7 @@ docker:
 #	docker push $(docker_image_name):$(tag)
 
 branch=$(shell git rev-parse --abbrev-ref HEAD)
-docker_image_name=duckietown/rpi-duckiebot-base:$(branch)
+docker_image_name=gibernas/rpi-duckiebot-base:$(branch)
 
 docker-build:
 	docker build --pull -t $(docker_image_name) .

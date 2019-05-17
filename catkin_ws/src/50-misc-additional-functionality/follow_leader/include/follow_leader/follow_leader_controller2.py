@@ -9,13 +9,13 @@ class FollowLeaderController():
     def __init__(self):
 
         #Constants
-        self.v_ref = 0.22
+        self.v_ref = 0.1234
         self.d_int = 0.
         self.q = np.array([[80., 0, 0], [0, 40., 0], [0, 0, 2]])
         self.r = np.array([0.007])
 
         self.rho_ref = 0.11
-        self.k_P1 = -0.8
+        self.k_P1 = -1.2
 
 
     def getControlOutput(self, fl, rho, theta, psi, dt_last):
