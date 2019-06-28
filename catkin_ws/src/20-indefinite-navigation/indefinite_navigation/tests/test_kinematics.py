@@ -127,7 +127,7 @@ class KinematicsTestNode(unittest.TestCase):
                 )
         print info
         self.assertEquals(result_trim,"PASSED", info)
-
+        self.assertEquals(result_vel,"PASSED",info)
 
 
 
